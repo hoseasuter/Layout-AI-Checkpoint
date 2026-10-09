@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Product Gallery</title>
+    <style>
+      :root {
+        --bg-color: #f4f6f9;
+        --card-bg: #ffffff;
+        --text-main: #1a1d20;
+        --text-muted: #6c757d;
+        --border-color: #e2e8f0;
+        --accent-color: #2563eb;
+        --btn-bg: #e2e8f0;
+        --btn-text: #1a1d20;
+        --shadow-color: rgba(0, 0, 0, 0.08);
+        --shadow-hover: rgba(0, 0, 0, 0.16);
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --accent-color: #38bdf8;
+        --btn-bg: #334155;
+        --btn-text: #f8fafc;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --shadow-hover: rgba(0, 0, 0, 0.5);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+      }
+
+      header {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+      }
+
+      /* Interactive Theme Toggle Button */
+      .theme-toggle {
+        background-color: var(--btn-bg);
+        color: var(--btn-text);
+        border: 1px solid var(--border-color);
+        padding: 0.6rem 1.2rem;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition:
+          transform 0.2s ease,
+          background-color 0.3s ease;
+      }
+
+      .theme-toggle:hover {
+        transform: scale(1.05);
+      }
+
+      .theme-toggle:active {
+        transform: scale(0.95);
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        width: 100%;
+        max-width: 1100px;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px var(--shadow-color);
+        backface-visibility: hidden; /* GPU optimization */
+        transition:
+          transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.3s ease;
+
+        opacity: 0;
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 32px var(--shadow-hover);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Staggered entrance */
+      .card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      /* Respect reduced motion preferences */
+      @media (prefers-reduced-motion: reduce) {
+        .card {
+          animation: none;
+          opacity: 1;
+          transition: none;
+        }
+        .card:hover {
+          transform: none;
+        }
+        .card-img-wrapper img {
+          transition: none !important;
+        }
+      }
+
+      .card-img-wrapper {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        background-color: var(--border-color);
+      }
+
+      .card-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .card:hover .card-img-wrapper img {
+        transform: scale(1.06);
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-description {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 1.25rem;
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--accent-color);
+      }
+
+      .buy-btn {
+        background-color: var(--accent-color);
+        color: #ffffff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition:
+          opacity 0.2s ease,
+          transform 0.1s ease;
+      }
+
+      .buy-btn:hover {
+        opacity: 0.9;
+      }
+      .buy-btn:active {
+        transform: scale(0.96);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Featured Products</h1>
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        aria-label="Toggle theme"
+        aria-pressed="false"
+      >
+        <span id="themeIcon">🌙</span>
+        <span id="themeText">Dark Mode</span>
+      </button>
+    </header>
+
+    <main class="gallery">
+      <article class="card">
+        <div class="card-img-wrapper">
+          <img
+            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80"
+            alt="Wireless Headphones"
+          />
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">Wireless Headphones</h2>
+          <p class="card-description">
+            High-fidelity sound performance with active noise cancellation and
+            30-hour battery life.
+          </p>
+          <div class="card-footer">
+            <span class="price">$199.99</span>
+            <button class="buy-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrapper">
+          <img
+            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80"
+            alt="Minimalist Watch"
+          />
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">Minimalist Watch</h2>
+          <p class="card-description">
+            Sleek, modern design featuring a genuine leather strap and water
+            resistance up to 50 meters.
+          </p>
+          <div class="card-footer">
+            <span class="price">$149.00</span>
+            <button class="buy-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrapper">
+          <img
+            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80"
+            alt="Running Shoes"
+          />
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">Pro Running Shoes</h2>
+          <p class="card-description">
+            Engineered for maximum comfort and speed with breathable mesh and
+            responsive cushioning.
+          </p>
+          <div class="card-footer">
+            <span class="price">$120.50</span>
+            <button class="buy-btn">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <script>
+      const themeToggleBtn = document.getElementById("themeToggle");
+      const themeIcon = document.getElementById("themeIcon");
+      const themeText = document.getElementById("themeText");
+
+      function setTheme(isDark) {
+        if (isDark) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          themeIcon.textContent = "☀️";
+          themeText.textContent = "Light Mode";
+          themeToggleBtn.setAttribute("aria-pressed", "true");
+          localStorage.setItem("theme", "dark");
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+          themeIcon.textContent = "🌙";
+          themeText.textContent = "Dark Mode";
+          themeToggleBtn.setAttribute("aria-pressed", "false");
+          localStorage.setItem("theme", "light");
+        }
+      }
+
+      // Initialize based on LocalStorage or System Preference
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+
+      if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+        setTheme(true);
+      }
+
+      // Toggle listener
+      themeToggleBtn.addEventListener("click", () => {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+        setTheme(!isDark);
+      });
+    </script>
+  </body>
+</html>
